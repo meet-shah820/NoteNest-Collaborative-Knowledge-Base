@@ -96,6 +96,8 @@ All contributions must follow this workflow:
 
   -Make requested improvements
 
+---
+
 ### What Counts as a Valid Contribution?
 
 Valid contributions include:
@@ -122,6 +124,8 @@ Valid contributions include:
 
  -Low-effort or duplicate PRs
 
+---
+
 ### Evaluation Criteria (OSQ)
 
 Contributions are evaluated based on:
@@ -135,6 +139,8 @@ Contributions are evaluated based on:
 | Learning      | Growth and effort shown            |
 
 ⚠️ Quantity alone will not guarantee a high score.
+
+---
 
 ### Issue Labels
 
@@ -156,6 +162,8 @@ osq
 
 Choose issues that match your skill level.
 
+---
+
 ### Community Guidelines
 
 All participants must:
@@ -170,6 +178,8 @@ Avoid plagiarism and misconduct
 
 Violations may lead to disqualification from OSQ.
 
+---
+
 ### Need Help?
 
 If you are stuck or unsure:
@@ -182,5 +192,7 @@ Reach out to the maintainers/ mentors or **osq@r3actr.work**
 
 OSQ is about learning, collaboration, and building real software together.
 Make meaningful contributions, help others, and enjoy the open-source journey.
+
+---
 
 ### Happy Contributing 💓
