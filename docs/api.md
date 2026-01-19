@@ -14,7 +14,6 @@ notenest/
 ├── backend/ # APIs and business logic
 ├── docs/ # Project documentation
 
-
 You can work on **frontend, backend, or documentation independently**.
 
 ---
@@ -31,6 +30,7 @@ Make sure you have the following installed:
   - MongoDB Atlas (cloud)
 
 Check versions:
+
 ```bash
 node -v
 npm -v
@@ -60,3 +60,4 @@ Frontend will run at:
 http://localhost:3000
 
 
+```
