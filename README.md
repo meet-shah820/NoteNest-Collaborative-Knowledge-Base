@@ -109,6 +109,8 @@ npm run dev
 ```
 Create a .env file using .env.example and add required variables.
 
+---
+
 ### 📖 Documentation
 
 Detailed documentation is available in the /docs folder:
@@ -124,12 +126,16 @@ Detailed documentation is available in the /docs folder:
 
 [FAQ](faq.md) – Common questions
 
+---
+
 ### Security
 
 Please read our [Security](SECURITY.md) to learn how to responsibly report
 security vulnerabilities.
 
 ❌ Do not report security issues via public GitHub issues.
+
+---
 
 ### Evaluation (OSQ)
 
@@ -145,6 +151,8 @@ Collaboration and communication
 
 Quality and learning matter more than quantity.
 
+---
+
 ### Roadmap
 
 The planned roadmap can be found in [Roadmap](ROADMAP.md)
@@ -158,6 +166,8 @@ Search & indexing
 
 Advanced role management.
 
+---
+
 ### License
 
 This project is licensed under the MIT License.
@@ -170,6 +180,8 @@ Open Source Quest (OSQ)
 R3ACTR Community
 
 All contributors who help make NoteNest better ❤️.
+
+---
 
 ### Happy contributing! 🚀
  
