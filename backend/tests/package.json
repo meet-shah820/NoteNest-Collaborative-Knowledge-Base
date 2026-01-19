@@ -1,0 +1,13 @@
+{
+  "name": "notenest-backend-tests",
+  "version": "0.1.0",
+  "description": "Backend test suite for NoteNest",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Run backend tests here\""
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}
