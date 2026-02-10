@@ -9,6 +9,7 @@ import ErrorState from "@/components/ErrorState";
 import { SkeletonList } from "@/components/Skeleton";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useWorkspace } from "@/contexts/WorkspaceContext";
+import ActivityTimeline from "@/components/ActivityTimeline";
 
 const CREATE_RESTRICTED_TITLE = "You need Editor or Admin role to create notes.";
 
@@ -308,42 +309,7 @@ export default function WorkspaceDashboardPage({ workspaceId }: { workspaceId: s
                 </button>
               </div>
               <div className="flex-1 overflow-auto p-4 min-h-0">
-                {isLoading ? (
-                  <div className="animate-fade-in rounded-xl border p-4" style={cardStyle}>
-                    <SkeletonList count={3} variant="list-item" />
-                  </div>
-                ) : recentActivity.length === 0 ? (
-                  <div
-                    className="state-content-enter rounded-xl border p-5 card-elevate"
-                    style={cardStyle}
-                  >
-                    <EmptyState
-                      size="compact"
-                      icon={
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      }
-                      title="No recent activity"
-                      description="Your activity will be displayed here as you use NoteNest."
-                    />
-                  </div>
-                ) : (
-                  <ul className="space-y-2">
-                    {recentActivity.map((activity) => (
-                      <li key={activity.id}>
-                        <div className="rounded-xl border p-3 transition-shadow duration-200 hover:shadow-sm" style={cardStyle}>
-                          <div className="text-sm" style={{ color: "var(--color-text-secondary)" }}>
-                            {activity.action}
-                          </div>
-                          <div className="text-xs mt-1" style={{ color: "var(--color-text-muted)" }}>
-                            {activity.timestamp}
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <ActivityTimeline workspaceId={workspaceId} />
               </div>
             </aside>
           )}

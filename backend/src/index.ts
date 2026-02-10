@@ -1,11 +1,28 @@
 import express, { Request, Response } from "express";
+import mongoose from "mongoose";
+import cors from "cors";
 import dotenv from "dotenv";
+import workspaceRoutes from './routes/workspaces';
+import noteRoutes from './routes/notes';
+import userRoutes from './routes/users';
 
 dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+
+// Connect to MongoDB
+const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/notenest";
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("📊 Connected to MongoDB"))
+  .catch(err => console.error("MongoDB connection error:", err));
+
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/notes', noteRoutes);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.json({
