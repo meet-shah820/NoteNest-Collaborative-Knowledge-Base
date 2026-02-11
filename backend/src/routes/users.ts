@@ -48,7 +48,7 @@ router.post('/login', async (req: Request, res: Response<LoginResponse | ErrorRe
       return res.status(401).json(errorResponse);
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'secret', { expiresIn: '1h' });
 
     // Log the event
     await AuditService.logEvent(
