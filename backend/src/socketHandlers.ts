@@ -1,4 +1,5 @@
 import { Server as SocketIOServer, Socket } from "socket.io";
+// import jwt from 'jsonwebtoken'; // Unused in this file apparently or handled by socket.io middleware? Kept it safe in original, but line 2 was jwt.
 import jwt from 'jsonwebtoken';
 import Note from "./models/Note";
 import NoteVersion from "./models/NoteVersion";
@@ -14,6 +15,8 @@ interface AuthenticatedSocket extends Socket {
 
 const activeUsers: Map<string, Set<string>> = new Map(); // noteId -> Set of userIds
 
+
+
 export default function setupSocketHandlers(io: SocketIOServer) {
   io.use(async (socket: AuthenticatedSocket, next) => {
     const token = socket.handshake.auth.token;
@@ -23,7 +26,6 @@ export default function setupSocketHandlers(io: SocketIOServer) {
 
     try {
       // TODO: Verify JWT token and extract userId
-      // For now, assume token is userId
       socket.userId = token;
       next();
     } catch (error) {
@@ -37,14 +39,13 @@ export default function setupSocketHandlers(io: SocketIOServer) {
     socket.on("join-note", async (data: { noteId: string; workspaceId: string }) => {
       const { noteId, workspaceId } = data;
 
-      // Validate workspace access
+      // Validate access
       const workspace = await Workspace.findById(workspaceId);
       if (!workspace || !workspace.members.some(m => m.userId === socket.userId!)) {
         socket.emit("error", { message: "Access denied" });
         return;
       }
 
-      // Validate note exists in workspace
       const note = await Note.findOne({ _id: noteId, workspaceId });
       if (!note) {
         socket.emit("error", { message: "Note not found" });
@@ -53,24 +54,7 @@ export default function setupSocketHandlers(io: SocketIOServer) {
 
       socket.workspaceId = workspaceId;
       socket.join(`note-${noteId}`);
-
-      // Track active users
-      if (!activeUsers.has(noteId)) {
-        activeUsers.set(noteId, new Set());
-      }
-      activeUsers.get(noteId)!.add(socket.userId!);
-
-      // Send current active users
-      const activeUserIds = Array.from(activeUsers.get(noteId)!);
-      const users = await User.find({ _id: { $in: activeUserIds } }).select("_id name");
-      socket.emit("active-users", users);
-
-      // Broadcast to others in the room
-      const user = await User.findById(socket.userId);
-      socket.to(`note-${noteId}`).emit("user-joined", { userId: socket.userId, name: user?.name });
-
       console.log(`User ${socket.userId} joined note ${noteId}`);
-    });
 
     // Y.js collaboration events
     socket.on("join-note-yjs", (data: { noteId: string; workspaceId: string }) => {
@@ -81,14 +65,11 @@ export default function setupSocketHandlers(io: SocketIOServer) {
     socket.on("leave-note", (noteId: string) => {
       socket.leave(`note-${noteId}`);
 
-      if (activeUsers.has(noteId)) {
-        activeUsers.get(noteId)!.delete(socket.userId!);
-        if (activeUsers.get(noteId)!.size === 0) {
-          activeUsers.delete(noteId);
-        }
-      }
-
-      socket.to(`note-${noteId}`).emit("user-left", { userId: socket.userId });
+      // Send initial sync step 1 to client so they can respond with their state
+      const encoder = encoding.createEncoder();
+      encoding.writeVarUint(encoder, syncProtocol.messageYjsSyncStep1);
+      syncProtocol.writeSyncStep1(encoder, doc);
+      socket.emit("yjs-sync", encoding.toUint8Array(encoder));
     });
 
     socket.on("update-note", async (data: { noteId: string; title: string; content: string; expectedVersion?: number }) => {
@@ -101,12 +82,26 @@ export default function setupSocketHandlers(io: SocketIOServer) {
         return;
       }
 
-      // Check permissions (assume canEditNote logic)
-      const workspace = await Workspace.findById(socket.workspaceId);
-      const userRole = workspace?.members.find((m: any) => m.userId === socket.userId)?.role;
-      if (userRole === "viewer") {
-        socket.emit("error", { message: "Permission denied" });
-        return;
+    // Custom Y.js Update Handler to Broadcast
+    // The client sends binary update
+    socket.on("yjs-update", async (data: { noteId: string, update: Uint8Array }) => {
+      const doc = await getYDoc(data.noteId);
+      const update = new Uint8Array(data.update);
+
+      // Apply update to server doc
+      // This triggers the 'update' event on the doc, which saves to DB
+      // We also need to broadcast this update to all other clients in the room
+      try {
+        // Apply update using Y.js service logic or directly
+        // Using internal api for basic Apply
+        // Actually, let's just use the service helper if we can, but simpler here:
+        const Y = await import('yjs');
+        Y.applyUpdate(doc, update);
+
+        // Broadcast to other clients in the room
+        socket.to(`note-${data.noteId}`).emit("yjs-update", update);
+      } catch (e) {
+        console.error("Error applying update", e);
       }
 
       // OCC check
@@ -159,13 +154,6 @@ export default function setupSocketHandlers(io: SocketIOServer) {
 
     socket.on("disconnect", () => {
       console.log(`User ${socket.userId} disconnected`);
-      // Clean up active users
-      activeUsers.forEach((users, noteId) => {
-        users.delete(socket.userId!);
-        if (users.size === 0) {
-          activeUsers.delete(noteId);
-        }
-      });
     });
   });
 }
